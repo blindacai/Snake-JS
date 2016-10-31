@@ -89,12 +89,12 @@ function SnakeJS(parentElement, config){
 			frameIntervalId,		// The ID of the interval timer
 			score,					// Player score
 			highScore,				// Player highScore
-			collisionFramesLeft	// If the snake collides, how many frames are left until death
+			collisionFramesLeft	    // If the snake collides, how many frames are left until death
 
 		this.initGame = function(){
 
 			view = new View(parentElement, config.backgroundColor);
-			inputInterface = new InputInterface(this.pauseGame, this.resumeGame, startMoving);
+			inputInterface = new InputInterface(this, this.pauseGame, this.resumeGame, startMoving);
 
 			snake = new Snake();
 			grid = new Grid(config.gridWidth, config.gridHeight);
@@ -114,7 +114,6 @@ function SnakeJS(parentElement, config){
 		};
 
 		this.pauseGame = function(){
-			console.log("now in pause game");
 			if (currentState === constants.STATE_PLAYING) {
 				clearInterval(frameIntervalId);
 				currentState = constants.STATE_PAUSED;
@@ -122,7 +121,6 @@ function SnakeJS(parentElement, config){
 		};
 
 		this.resumeGame = function(){
-			console.log("now in resume game");
 			if (currentState === constants.STATE_PAUSED) {
 				frameIntervalId = setInterval(nextFrame, config.frameInterval);
 				currentState = constants.STATE_PLAYING;
@@ -131,6 +129,10 @@ function SnakeJS(parentElement, config){
 
 		this.getHighScore = function(){
 			return highScore;
+		};
+
+		this.getCurrentState = function(){
+			return currentState;
 		};
 
 		/**
@@ -759,7 +761,7 @@ function SnakeJS(parentElement, config){
 	 * @param resumeFn A callback function which executes when the window is in focus again
 	 * @param autoPlayFn A callback function which executes when any arrow key is pressed
 	 */
-	function InputInterface(pauseFn, resumeFn, autoPlayFn){
+	function InputInterface(engine, pauseFn, resumeFn, autoPlayFn){
 
 		var arrowKeys = [37, 38, 39, 40],	// Key codes for the arrow keys on a keyboard
 			listening = false,				// Listening right now for key strokes etc?
@@ -801,7 +803,7 @@ function SnakeJS(parentElement, config){
 		 */
 
 		var handlePause = function(event){
-			if(this.pause){
+			if(this.pause && engine.getCurrentState() === constants.STATE_PLAYING){
 				pauseFn();
 				this.pause = false;
 			}
