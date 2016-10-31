@@ -94,7 +94,7 @@ function SnakeJS(parentElement, config){
 		this.initGame = function(){
 
 			view = new View(parentElement, config.backgroundColor);
-			inputInterface = new InputInterface(this, this.pauseGame, this.resumeGame, startMoving);
+			inputInterface = new InputInterface(this, startMoving);
 
 			snake = new Snake();
 			grid = new Grid(config.gridWidth, config.gridHeight);
@@ -761,7 +761,7 @@ function SnakeJS(parentElement, config){
 	 * @param resumeFn A callback function which executes when the window is in focus again
 	 * @param autoPlayFn A callback function which executes when any arrow key is pressed
 	 */
-	function InputInterface(engine, pauseFn, resumeFn, autoPlayFn){
+	function InputInterface(engine, autoPlayFn){
 
 		var arrowKeys = [37, 38, 39, 40],	// Key codes for the arrow keys on a keyboard
 			listening = false,				// Listening right now for key strokes etc?
@@ -782,7 +782,6 @@ function SnakeJS(parentElement, config){
 				window.addEventListener("keydown", handleKeyDown, true);
 				window.addEventListener("keypress", disableKeyPress, true);
 				window.addEventListener("click", handlePause, true);
-				//window.addEventListener("click", resumeFn, true);
 				listening = true;
 			}
 		};
@@ -790,10 +789,9 @@ function SnakeJS(parentElement, config){
 		// Stop listening for events. Typically called at game end
 		this.stopListening = function(){
 			if (listening) {
-				//window.removeEventListener("keydown", handleKeyDown, true);
+				window.removeEventListener("keydown", handleKeyDown, true);
 				window.removeEventListener("keypress", disableKeyPress, true);
-				window.removeEventListener("blur", pauseFn, true);
-				window.removeEventListener("focus", resumeFn, true);
+				window.removeEventListener("click", handlePause, true);
 				listening = false;
 			}
 		};
@@ -804,11 +802,11 @@ function SnakeJS(parentElement, config){
 
 		var handlePause = function(event){
 			if(this.pause && engine.getCurrentState() === constants.STATE_PLAYING){
-				pauseFn();
+				engine.pauseGame();
 				this.pause = false;
 			}
 			else{
-				resumeFn();
+				engine.resumeGame();
 				this.pause = true;
 			}
 		}
