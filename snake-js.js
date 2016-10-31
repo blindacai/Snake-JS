@@ -29,7 +29,7 @@ function SnakeJS(parentElement, config){
 		shrinkingCandyColor : "#199C2C",	// Color of the special candy that shrinks
 		scoreBoardColor : "#c0c96b",		// Color of the score board
 		scoreTextColor : "#4b4312",			// Color of the score numbers on the score board
-		collisionTolerance : 1				// Still frames before collision. More = easier
+		collisionTolerance : 1,				// Still frames before collision. More = easier
 	};
 
 	// Merge user config with default config
@@ -89,7 +89,7 @@ function SnakeJS(parentElement, config){
 			frameIntervalId,		// The ID of the interval timer
 			score,					// Player score
 			highScore,				// Player highScore
-			collisionFramesLeft;	// If the snake collides, how many frames are left until death
+			collisionFramesLeft	// If the snake collides, how many frames are left until death
 
 		this.initGame = function(){
 
@@ -114,6 +114,7 @@ function SnakeJS(parentElement, config){
 		};
 
 		this.pauseGame = function(){
+			console.log("now in pause game");
 			if (currentState === constants.STATE_PLAYING) {
 				clearInterval(frameIntervalId);
 				currentState = constants.STATE_PAUSED;
@@ -121,6 +122,7 @@ function SnakeJS(parentElement, config){
 		};
 
 		this.resumeGame = function(){
+			console.log("now in resume game");
 			if (currentState === constants.STATE_PAUSED) {
 				frameIntervalId = setInterval(nextFrame, config.frameInterval);
 				currentState = constants.STATE_PLAYING;
@@ -171,7 +173,6 @@ function SnakeJS(parentElement, config){
 
 		// Calculates what the next frame will be like and draws it.
 		var nextFrame = function(){
-
 			// If the snake can't be moved in the desired direction due to collision
 			if (!moveSnake(inputInterface.lastDirection())) {
 				if (collisionFramesLeft > 0) {
@@ -763,6 +764,7 @@ function SnakeJS(parentElement, config){
 		var arrowKeys = [37, 38, 39, 40],	// Key codes for the arrow keys on a keyboard
 			listening = false,				// Listening right now for key strokes etc?
 			lastDirection = null;			// Corresponds to the last arrow key pressed
+			pause = true;
 
 		/**
 		 * Public methods below
@@ -777,8 +779,8 @@ function SnakeJS(parentElement, config){
 			if (!listening) {
 				window.addEventListener("keydown", handleKeyDown, true);
 				window.addEventListener("keypress", disableKeyPress, true);
-				window.addEventListener("blur", pauseFn, true);
-				window.addEventListener("focus", resumeFn, true);
+				window.addEventListener("click", handlePause, true);
+				//window.addEventListener("click", resumeFn, true);
 				listening = true;
 			}
 		};
@@ -786,7 +788,7 @@ function SnakeJS(parentElement, config){
 		// Stop listening for events. Typically called at game end
 		this.stopListening = function(){
 			if (listening) {
-				window.removeEventListener("keydown", handleKeyDown, true);
+				//window.removeEventListener("keydown", handleKeyDown, true);
 				window.removeEventListener("keypress", disableKeyPress, true);
 				window.removeEventListener("blur", pauseFn, true);
 				window.removeEventListener("focus", resumeFn, true);
@@ -797,6 +799,17 @@ function SnakeJS(parentElement, config){
 		/**
 		 * Private methods below
 		 */
+
+		var handlePause = function(event){
+			if(this.pause){
+				pauseFn();
+				this.pause = false;
+			}
+			else{
+				resumeFn();
+				this.pause = true;
+			}
+		}
 
 		var handleKeyDown = function(event){
 			// If the key pressed is an arrow key
